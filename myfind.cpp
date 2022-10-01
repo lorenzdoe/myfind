@@ -23,10 +23,12 @@ using namespace myfind;
 
 void print_usage(const string& program_name);
 
+bool find(const string &searchpath, const string &searchfile, bool recursive);
+
 int main(int argc, char* argv[])
 {
     int c;
-    bool recoursive_mode;
+    bool recursive_mode;
     bool case_sensitive;
     unsigned short optcount;
     string program_name;
@@ -34,7 +36,7 @@ int main(int argc, char* argv[])
     string searchpath;
 
     optcount = 0;
-    recoursive_mode = case_sensitive = false;
+    recursive_mode = case_sensitive = false;
     program_name    = argv[0];
     cwd_path        = std::filesystem::current_path();
 
@@ -52,7 +54,7 @@ int main(int argc, char* argv[])
                 break;
             
             case 'R':
-                recoursive_mode = true;
+                recursive_mode = true;
                 optcount++;
                 break;
 
@@ -79,7 +81,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(recoursive_mode) cout << "recoursive\n";
+    if(recursive_mode) cout << "recoursive\n";
     if(case_sensitive) cout << "case sensitive\n";
 
     /*
@@ -88,34 +90,32 @@ int main(int argc, char* argv[])
     searchpath = argv[optind];
     optind++;
 
-    bool found = false;
-    try
+    // iterate over input arguments
+    for(; optind < argc ; optind++)
     {
-        for(const auto& dirEntry: directory_iterator(searchpath))
+        bool found;
+        string searchfile = argv[optind];
+        try
         {
-            if(dirEntry.path().filename() == argv[optind])
-            {
-                found = true;
-                cout << "found: " << dirEntry.path() << endl;
-            }
+            found = find(searchpath,searchfile,recursive_mode);
         }
-    }
 
-    // this exception is thrown when an invalid path is passed
-    catch (std::filesystem::__cxx11::filesystem_error& e)
-    {
-        cerr << e.what() << endl;
-        exit(EXIT_FAILURE);
-    }
-    catch (...)
-    {
-        cerr << "unknown error" << endl;
-        exit(EXIT_FAILURE);
-    }
+        // this exception is thrown when an invalid path is passed
+        catch (std::filesystem::__cxx11::filesystem_error& e)
+        {
+            cerr << e.what() << endl;
+            exit(EXIT_FAILURE);
+        }
+        catch (...)
+        {
+            cerr << "unknown error" << endl;
+            exit(EXIT_FAILURE);
+        }
 
-    if( ! found )
-    {
-        cout << "nothing found" << endl;
+        if( ! found )
+        {
+            cout << "file: " << searchfile << " not found" << endl;
+        }
     }
 
     return 0;
@@ -124,4 +124,35 @@ int main(int argc, char* argv[])
 void print_usage(const string& program_name)
 {
     cout << "Usage: " << program_name << " [-R] [-i] searchpath filename1 [filename2] ...[filenameN]\n" << endl;
+}
+
+bool find(const string &searchpath, const string &searchfile, bool recursive)
+{
+    bool found = false;
+
+    if(recursive)
+    {
+        for(const auto& dirEntry: recursive_directory_iterator(searchpath))
+        {
+            if(dirEntry.path().filename() == searchfile)
+            {
+                found = true;
+                cout << "found: " << dirEntry.path() << endl;
+            }
+        }
+    }
+
+    else
+    {
+        for(const auto& dirEntry: directory_iterator(searchpath))
+        {
+            if(dirEntry.path().filename() == searchfile)
+            {
+                found = true;
+                cout << "found: " << dirEntry.path() << endl;
+            }
+        }
+    }
+
+    return found;
 }
