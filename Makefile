@@ -26,6 +26,3 @@ clean:
 
 run: all
 	./myfind
-
-testrun: all
-	./myfind test.txt -i myfind.pdf -R
