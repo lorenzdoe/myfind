@@ -39,13 +39,11 @@ int main(int argc, char* argv[])
     bool case_sensitive;
     int optcount;
     string program_name;
-    string cwd_path;
     string searchpath;
 
     optcount = 0;
     recursive_mode = case_sensitive = false;
     program_name    = argv[0];
-    cwd_path        = std::filesystem::current_path();
 
     cout << "PID: " << (int)getpid() << endl << endl;
 
