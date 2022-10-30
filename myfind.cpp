@@ -2,7 +2,8 @@
     Filename: myfind.cpp
 
     Description: searches for passed filename in directory and subdirectories
-    Author: Lorenz Döllinger
+    Usage: ./myfind [-R] [-i] searchpath filename1 [filename2] ...[filenameN]
+    Author: Bartosik, Döllinger
 
 */
 #include <unistd.h>      /* Included for getopt */
@@ -97,18 +98,8 @@ int main(int argc, char* argv[])
             }
 
         }
-        // wait returns process id from child that terminates
-        /*
-        //wait for all child processes to terminate (folien)
-        pid = waitpid(-1, nullptr, WNOHANG);
-        while (pid)
-        {
-            if ((pid == -1) && (errno != EINTR)){
-                break;
-            }
-            pid = waitpid(-1, nullptr, WNOHANG);
-        }
-         */
+
+        // only enters in parent process
         if(pid)
         {
             while ((wpid = wait(&status)) != pid)
@@ -125,7 +116,7 @@ int main(int argc, char* argv[])
             /* check exit code of child after finishing */
             if (WIFEXITED(status)) /* child has finished normally with exit code WEXITSTATUS(status) */
             {
-                cout <<"\nChild processes finished normally, exit code: " << WEXITSTATUS(status) << endl;
+                //cout <<"\nChild processes finished normally, exit code: " << WEXITSTATUS(status) << endl;
             }
             else /* child has finished with error */
             {
@@ -223,15 +214,15 @@ bool find(const string &searchpath, const string &searchfile, bool recursive, bo
 
 bool compare(const string& a, const string& b, bool cs)
 {
-    if (!cs) {
+    if (cs) {
+        return a == b;
+    }
+    else
+    {
         return std::equal(a.begin(), a.end(),
                           b.begin(), b.end(),
                           [](char a, char b) {
                               return tolower(a) == tolower(b);
                           });
-    }
-    else
-    {
-        return a == b;
     }
 }
