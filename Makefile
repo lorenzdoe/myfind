@@ -13,7 +13,7 @@ CXXFLAGS	:= -std=c++17 -Wall -Werror
 all: myfind
 
 myfind:
-	 $(CXX) $(CXXFLAGS) myfind.cpp -o myfind
+	 $(CXX) $(CXXFLAGS) myfind.cpp main.cpp -o myfind
 
 clean:
 	rm -f myfind
